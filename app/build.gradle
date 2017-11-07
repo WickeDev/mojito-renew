@@ -1,10 +1,13 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
 android {
+    def globalConfiguration = rootProject.extensions.getByName("ext")
+    def config = globalConfiguration.config
+    def develop = config.develop
+
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.novonetworks.mojito"
@@ -13,6 +16,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "API_BASE_URL", "\"${develop.url}:${develop.port}\""
+    }
+    dataBinding {
+        enabled = true
     }
     buildTypes {
         release {
@@ -24,9 +31,72 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+
+    // ----------------
+    //      Kotlin
+    // ----------------
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation("com.android.databinding:library:1.3.3") {
+        exclude group: 'com.android.support'
+    }
+    kapt('com.android.databinding:compiler:3.0.0') {
+        exclude group: 'com.android.support'
+    }
+
+    // -----------------------------------
+    //      Android Support Library
+    // -----------------------------------
+
     implementation 'com.android.support:appcompat-v7:27.0.0'
+    implementation 'com.android.support:support-annotations:27.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    // ------------------
+    //      RxJava
+    // ------------------
+
+    // -----------------------------------
+    //      Architecture Components
+    // -----------------------------------
+
+    implementation "android.arch.lifecycle:extensions:1.0.0"
+    implementation("android.arch.persistence.room:runtime:1.0.0")
+    implementation("android.arch.paging:runtime:1.0.0-alpha3") {
+        exclude group: 'com.android.support'
+    }
+    implementation "android.arch.persistence.room:rxjava2:1.0.0"
+    kapt "android.arch.persistence.room:compiler:1.0.0"
+    testImplementation "android.arch.persistence.room:testing:1.0.0"
+
+    // -------------------------
+    //      UI components
+    // -------------------------
+
+    implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+
+    // --------------------------------
+    //      Dependency Injection
+    // --------------------------------
+
+    implementation 'com.google.dagger:dagger:2.11'
+    kapt 'com.google.dagger:dagger-compiler:2.11'
+    implementation 'com.google.dagger:dagger-android:2.11'
+    implementation('com.google.dagger:dagger-android-support:2.11') {
+        exclude group: 'com.android.support'
+    }
+    kapt 'com.google.dagger:dagger-android-processor:2.11'
+
+    // ----------------
+    //      Utils
+    // ----------------
+
+    implementation 'com.jakewharton.timber:timber:4.6.0'
+
+    // -------------------
+    //      Testing
+    // -------------------
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
